@@ -163,7 +163,7 @@ class TCPClientTest(AsyncTestCase):
     @gen_test
     def test_connect_timeout(self):
         timeout = 0.05
-        timeout_min, timeout_max = 0.01, 0.10
+        timeout_min, timeout_max = 0.04, 0.10
 
         class TimeoutResolver(Resolver):
             def resolve(self, *args, **kwargs):
@@ -174,33 +174,33 @@ class TCPClientTest(AsyncTestCase):
                 '8.8.8.8', 12345, timeout=timeout)
         end_time = self.io_loop.time()
 
-        from tornado import gen
-        s_time = self.io_loop.time()
-        yield gen.sleep(0.05)
-        e_time = self.io_loop.time()
-
-        future = Future()
-        ss_time = self.io_loop.time()
-        try:
-            yield gen.with_timeout(self.io_loop.time() + 0.05, future)
-        except TimeoutError:
-            pass
-        ee_time = self.io_loop.time()
-
-        import logging
-        import sys
-        from tornado.log import app_log
-        app_log.level = logging.INFO
-        stream_handler = logging.StreamHandler(sys.stdout)
-        app_log.addHandler(stream_handler)
-        try:
-            app_log.info('\n')
-            app_log.info('{}, {}, {}'.format(timeout_min, end_time - start_time, timeout_max))
-            app_log.info('sleep 0.05, {}'.format(e_time - s_time))
-            app_log.info('with timeout 0.05, {}'.format(ee_time - ss_time))
-            app_log.info('\n')
-        finally:
-            app_log.removeHandler(stream_handler)
+        # from tornado import gen
+        # s_time = self.io_loop.time()
+        # yield gen.sleep(0.05)
+        # e_time = self.io_loop.time()
+        #
+        # future = Future()
+        # ss_time = self.io_loop.time()
+        # try:
+        #     yield gen.with_timeout(self.io_loop.time() + 0.05, future)
+        # except TimeoutError:
+        #     pass
+        # ee_time = self.io_loop.time()
+        #
+        # import logging
+        # import sys
+        # from tornado.log import app_log
+        # app_log.level = logging.INFO
+        # stream_handler = logging.StreamHandler(sys.stdout)
+        # app_log.addHandler(stream_handler)
+        # try:
+        #     app_log.info('\n')
+        #     app_log.info('{}, {}, {}'.format(timeout_min, end_time - start_time, timeout_max))
+        #     app_log.info('sleep 0.05, {}'.format(e_time - s_time))
+        #     app_log.info('with timeout 0.05, {}'.format(ee_time - ss_time))
+        #     app_log.info('\n')
+        # finally:
+        #     app_log.removeHandler(stream_handler)
 
         self.assertTrue(timeout_min < end_time - start_time < timeout_max)
 
