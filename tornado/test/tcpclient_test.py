@@ -162,9 +162,8 @@ class TCPClientTest(AsyncTestCase):
     @skipOnTravis
     @gen_test
     def test_connect_timeout(self):
-        from tornado.log import app_log
-        timeout = 0.02
-        timeout_min, timeout_max = 0.01, 0.03
+        timeout = 0.05
+        timeout_min, timeout_max = 0.01, 0.10
 
         class TimeoutResolver(Resolver):
             def resolve(self, *args, **kwargs):
@@ -174,7 +173,6 @@ class TCPClientTest(AsyncTestCase):
             yield TCPClient(resolver=TimeoutResolver()).connect(
                 '8.8.8.8', 12345, timeout=timeout)
         end_time = self.io_loop.time()
-        app_log.error('{}, {}, {}'.format(timeout_min, end_time - start_time, timeout_max))
         self.assertTrue(timeout_min < end_time - start_time < timeout_max)
 
 
