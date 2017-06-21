@@ -173,6 +173,20 @@ class TCPClientTest(AsyncTestCase):
             yield TCPClient(resolver=TimeoutResolver()).connect(
                 '8.8.8.8', 12345, timeout=timeout)
         end_time = self.io_loop.time()
+
+        import logging
+        import sys
+        from tornado.log import app_log
+        app_log.level = logging.INFO
+        stream_handler = logging.StreamHandler(sys.stdout)
+        app_log.addHandler(stream_handler)
+        try:
+            app_log.info('\n')
+            app_log.info('{}, {}, {}'.format(timeout_min, end_time - start_time, timeout_max))
+            app_log.info('\n')
+        finally:
+            app_log.removeHandler(stream_handler)
+
         self.assertTrue(timeout_min < end_time - start_time < timeout_max)
 
 
