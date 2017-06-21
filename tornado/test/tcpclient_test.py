@@ -174,6 +174,11 @@ class TCPClientTest(AsyncTestCase):
                 '8.8.8.8', 12345, timeout=timeout)
         end_time = self.io_loop.time()
 
+        from tornado import gen
+        s_time = self.io_loop.time()
+        yield gen.sleep(1.0)
+        e_time = self.io_loop.time()
+
         import logging
         import sys
         from tornado.log import app_log
@@ -183,6 +188,7 @@ class TCPClientTest(AsyncTestCase):
         try:
             app_log.info('\n')
             app_log.info('{}, {}, {}'.format(timeout_min, end_time - start_time, timeout_max))
+            app_log.info('sleep 1, {}'.format(e_time - s_time))
             app_log.info('\n')
         finally:
             app_log.removeHandler(stream_handler)
