@@ -176,8 +176,16 @@ class TCPClientTest(AsyncTestCase):
 
         from tornado import gen
         s_time = self.io_loop.time()
-        yield gen.sleep(1.0)
+        yield gen.sleep(0.05)
         e_time = self.io_loop.time()
+
+        future = Future()
+        ss_time = self.io_loop.time()
+        try:
+            yield gen.with_timeout(self.io_loop.time() + 0.05, future)
+        except TimeoutError:
+            pass
+        ee_time = self.io_loop.time()
 
         import logging
         import sys
@@ -188,7 +196,8 @@ class TCPClientTest(AsyncTestCase):
         try:
             app_log.info('\n')
             app_log.info('{}, {}, {}'.format(timeout_min, end_time - start_time, timeout_max))
-            app_log.info('sleep 1, {}'.format(e_time - s_time))
+            app_log.info('sleep 0.05, {}'.format(e_time - s_time))
+            app_log.info('with timeout 0.05, {}'.format(ee_time - ss_time))
             app_log.info('\n')
         finally:
             app_log.removeHandler(stream_handler)
