@@ -161,7 +161,7 @@ class TCPClientTest(AsyncTestCase):
 
     @gen_test
     def test_connect_timeout(self):
-        timeout = 0.01
+        timeout = 1.0
 
         class TimeoutResolver(Resolver):
             def resolve(self, *args, **kwargs):
