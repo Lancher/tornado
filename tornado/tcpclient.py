@@ -209,9 +209,9 @@ class TCPClient(object):
         """
         if timeout is not None:
             if isinstance(timeout, numbers.Real):
-                timeout = time.time() + timeout
+                timeout = IOLoop.current().time() + timeout
             elif isinstance(timeout, datetime.timedelta):
-                timeout = time.time() + timedelta_to_seconds(timeout)
+                timeout = IOLoop.current().time() + timedelta_to_seconds(timeout)
             else:
                 raise TypeError("Unsupported timeout %r" % timeout)
         if timeout is not None:
