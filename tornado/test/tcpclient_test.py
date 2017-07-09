@@ -161,14 +161,14 @@ class TCPClientTest(AsyncTestCase):
 
     @gen_test
     def test_connect_timeout(self):
-        timeout = 1.0
+        timeout = 0.1
 
         class TimeoutResolver(Resolver):
             def resolve(self, *args, **kwargs):
                 return Future()  # never completes
         # with self.assertRaises(TimeoutError):
-        #     yield TCPClient(resolver=TimeoutResolver()).connect(
-        #         '8.8.8.8', 12345, timeout=timeout)
+        yield TCPClient(resolver=TimeoutResolver()).connect(
+            '1.2.3.4', 12345, timeout=timeout)
 
         # from tornado import gen
         # s_time = self.io_loop.time()
