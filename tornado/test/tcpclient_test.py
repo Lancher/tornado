@@ -159,16 +159,16 @@ class TCPClientTest(AsyncTestCase):
                           '127.0.0.1',
                           source_port=1)
 
-    # @gen_test
-    # def test_connect_timeout(self):
-    #     timeout = 1.0
-    #
-    #     class TimeoutResolver(Resolver):
-    #         def resolve(self, *args, **kwargs):
-    #             return Future()  # never completes
-    #     with self.assertRaises(TimeoutError):
-    #         yield TCPClient(resolver=TimeoutResolver()).connect(
-    #             '8.8.8.8', 12345, timeout=timeout)
+    @gen_test
+    def test_connect_timeout(self):
+        timeout = 1.0
+
+        class TimeoutResolver(Resolver):
+            def resolve(self, *args, **kwargs):
+                return Future()  # never completes
+        with self.assertRaises(TimeoutError):
+            yield TCPClient(resolver=TimeoutResolver()).connect(
+                '8.8.8.8', 12345, timeout=timeout)
 
         # from tornado import gen
         # s_time = self.io_loop.time()
@@ -358,99 +358,99 @@ class ConnectorTest(AsyncTestCase):
         self.resolve_connect(AF1, 'b', False)
         self.assertRaises(IOError, future.result)
 
-    # def test_one_family_connect_timeout(self):
-    #     conn, future = self.start_connect([(AF1, 'a'), (AF1, 'b')])
-    #     self.assert_pending((AF1, 'a'))
-    #     conn.on_connect_timeout()
-    #     # the connector will close all streams on connect timeout, we
-    #     # should explicitly pop the connect_future.
-    #     self.connect_futures.pop((AF1, 'a'))
-    #     self.assertTrue(self.streams.pop('a').closed)
-    #     # if the future is set with TimeoutError, we will not iterate next
-    #     # possible address.
-    #     self.assert_pending()
-    #     self.assertEqual(len(conn.streams), 1)
-    #     self.assert_connector_streams_closed(conn)
-    #     self.assertRaises(TimeoutError, future.result)
-    #
-    # def test_one_family_success_before_connect_timeout(self):
-    #     conn, future = self.start_connect([(AF1, 'a'), (AF1, 'b')])
-    #     self.assert_pending((AF1, 'a'))
-    #     self.resolve_connect(AF1, 'a', True)
-    #     conn.on_connect_timeout()
-    #     self.assert_pending()
-    #     self.assertEqual(self.streams['a'].closed, False)
-    #     # success stream will be pop
-    #     self.assertEqual(len(conn.streams), 0)
-    #     # streams in connector should be closed after connect timeout
-    #     self.assert_connector_streams_closed(conn)
-    #     self.assertEqual(future.result(), (AF1, 'a', self.streams['a']))
-    #
-    # def test_one_family_second_try_after_connect_timeout(self):
-    #     conn, future = self.start_connect([(AF1, 'a'), (AF1, 'b')])
-    #     self.assert_pending((AF1, 'a'))
-    #     self.resolve_connect(AF1, 'a', False)
-    #     self.assert_pending((AF1, 'b'))
-    #     conn.on_connect_timeout()
-    #     self.connect_futures.pop((AF1, 'b'))
-    #     self.assertTrue(self.streams.pop('b').closed)
-    #     self.assert_pending()
-    #     self.assertEqual(len(conn.streams), 2)
-    #     self.assert_connector_streams_closed(conn)
-    #     self.assertRaises(TimeoutError, future.result)
-    #
-    # def test_one_family_second_try_failure_before_connect_timeout(self):
-    #     conn, future = self.start_connect([(AF1, 'a'), (AF1, 'b')])
-    #     self.assert_pending((AF1, 'a'))
-    #     self.resolve_connect(AF1, 'a', False)
-    #     self.assert_pending((AF1, 'b'))
-    #     self.resolve_connect(AF1, 'b', False)
-    #     conn.on_connect_timeout()
-    #     self.assert_pending()
-    #     self.assertEqual(len(conn.streams), 2)
-    #     self.assert_connector_streams_closed(conn)
-    #     self.assertRaises(IOError, future.result)
-    #
-    # def test_two_family_timeout_before_connect_timeout(self):
-    #     conn, future = self.start_connect(self.addrinfo)
-    #     self.assert_pending((AF1, 'a'))
-    #     conn.on_timeout()
-    #     self.assert_pending((AF1, 'a'), (AF2, 'c'))
-    #     conn.on_connect_timeout()
-    #     self.connect_futures.pop((AF1, 'a'))
-    #     self.assertTrue(self.streams.pop('a').closed)
-    #     self.connect_futures.pop((AF2, 'c'))
-    #     self.assertTrue(self.streams.pop('c').closed)
-    #     self.assert_pending()
-    #     self.assertEqual(len(conn.streams), 2)
-    #     self.assert_connector_streams_closed(conn)
-    #     self.assertRaises(TimeoutError, future.result)
-    #
-    # def test_two_family_success_after_timeout(self):
-    #     conn, future = self.start_connect(self.addrinfo)
-    #     self.assert_pending((AF1, 'a'))
-    #     conn.on_timeout()
-    #     self.assert_pending((AF1, 'a'), (AF2, 'c'))
-    #     self.resolve_connect(AF1, 'a', True)
-    #     # if one of streams succeed, connector will close all other streams
-    #     self.connect_futures.pop((AF2, 'c'))
-    #     self.assertTrue(self.streams.pop('c').closed)
-    #     self.assert_pending()
-    #     self.assertEqual(len(conn.streams), 1)
-    #     self.assert_connector_streams_closed(conn)
-    #     self.assertEqual(future.result(), (AF1, 'a', self.streams['a']))
-    #
-    # def test_two_family_timeout_after_connect_timeout(self):
-    #     conn, future = self.start_connect(self.addrinfo)
-    #     self.assert_pending((AF1, 'a'))
-    #     conn.on_connect_timeout()
-    #     self.connect_futures.pop((AF1, 'a'))
-    #     self.assertTrue(self.streams.pop('a').closed)
-    #     self.assert_pending()
-    #     conn.on_timeout()
-    #     # if the future is set with TimeoutError, connector will not
-    #     # trigger secondary address.
-    #     self.assert_pending()
-    #     self.assertEqual(len(conn.streams), 1)
-    #     self.assert_connector_streams_closed(conn)
-    #     self.assertRaises(TimeoutError, future.result)
+    def test_one_family_connect_timeout(self):
+        conn, future = self.start_connect([(AF1, 'a'), (AF1, 'b')])
+        self.assert_pending((AF1, 'a'))
+        conn.on_connect_timeout()
+        # the connector will close all streams on connect timeout, we
+        # should explicitly pop the connect_future.
+        self.connect_futures.pop((AF1, 'a'))
+        self.assertTrue(self.streams.pop('a').closed)
+        # if the future is set with TimeoutError, we will not iterate next
+        # possible address.
+        self.assert_pending()
+        self.assertEqual(len(conn.streams), 1)
+        self.assert_connector_streams_closed(conn)
+        self.assertRaises(TimeoutError, future.result)
+
+    def test_one_family_success_before_connect_timeout(self):
+        conn, future = self.start_connect([(AF1, 'a'), (AF1, 'b')])
+        self.assert_pending((AF1, 'a'))
+        self.resolve_connect(AF1, 'a', True)
+        conn.on_connect_timeout()
+        self.assert_pending()
+        self.assertEqual(self.streams['a'].closed, False)
+        # success stream will be pop
+        self.assertEqual(len(conn.streams), 0)
+        # streams in connector should be closed after connect timeout
+        self.assert_connector_streams_closed(conn)
+        self.assertEqual(future.result(), (AF1, 'a', self.streams['a']))
+
+    def test_one_family_second_try_after_connect_timeout(self):
+        conn, future = self.start_connect([(AF1, 'a'), (AF1, 'b')])
+        self.assert_pending((AF1, 'a'))
+        self.resolve_connect(AF1, 'a', False)
+        self.assert_pending((AF1, 'b'))
+        conn.on_connect_timeout()
+        self.connect_futures.pop((AF1, 'b'))
+        self.assertTrue(self.streams.pop('b').closed)
+        self.assert_pending()
+        self.assertEqual(len(conn.streams), 2)
+        self.assert_connector_streams_closed(conn)
+        self.assertRaises(TimeoutError, future.result)
+
+    def test_one_family_second_try_failure_before_connect_timeout(self):
+        conn, future = self.start_connect([(AF1, 'a'), (AF1, 'b')])
+        self.assert_pending((AF1, 'a'))
+        self.resolve_connect(AF1, 'a', False)
+        self.assert_pending((AF1, 'b'))
+        self.resolve_connect(AF1, 'b', False)
+        conn.on_connect_timeout()
+        self.assert_pending()
+        self.assertEqual(len(conn.streams), 2)
+        self.assert_connector_streams_closed(conn)
+        self.assertRaises(IOError, future.result)
+
+    def test_two_family_timeout_before_connect_timeout(self):
+        conn, future = self.start_connect(self.addrinfo)
+        self.assert_pending((AF1, 'a'))
+        conn.on_timeout()
+        self.assert_pending((AF1, 'a'), (AF2, 'c'))
+        conn.on_connect_timeout()
+        self.connect_futures.pop((AF1, 'a'))
+        self.assertTrue(self.streams.pop('a').closed)
+        self.connect_futures.pop((AF2, 'c'))
+        self.assertTrue(self.streams.pop('c').closed)
+        self.assert_pending()
+        self.assertEqual(len(conn.streams), 2)
+        self.assert_connector_streams_closed(conn)
+        self.assertRaises(TimeoutError, future.result)
+
+    def test_two_family_success_after_timeout(self):
+        conn, future = self.start_connect(self.addrinfo)
+        self.assert_pending((AF1, 'a'))
+        conn.on_timeout()
+        self.assert_pending((AF1, 'a'), (AF2, 'c'))
+        self.resolve_connect(AF1, 'a', True)
+        # if one of streams succeed, connector will close all other streams
+        self.connect_futures.pop((AF2, 'c'))
+        self.assertTrue(self.streams.pop('c').closed)
+        self.assert_pending()
+        self.assertEqual(len(conn.streams), 1)
+        self.assert_connector_streams_closed(conn)
+        self.assertEqual(future.result(), (AF1, 'a', self.streams['a']))
+
+    def test_two_family_timeout_after_connect_timeout(self):
+        conn, future = self.start_connect(self.addrinfo)
+        self.assert_pending((AF1, 'a'))
+        conn.on_connect_timeout()
+        self.connect_futures.pop((AF1, 'a'))
+        self.assertTrue(self.streams.pop('a').closed)
+        self.assert_pending()
+        conn.on_timeout()
+        # if the future is set with TimeoutError, connector will not
+        # trigger secondary address.
+        self.assert_pending()
+        self.assertEqual(len(conn.streams), 1)
+        self.assert_connector_streams_closed(conn)
+        self.assertRaises(TimeoutError, future.result)
