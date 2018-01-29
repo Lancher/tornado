@@ -107,9 +107,15 @@ for i in range(500):
         # Once the autoreload process is done, we kill the touch process
         autoreload_proc.wait()
         touch_proc.terminate()
-        touch_proc.wait()
+
         import time
-        time.sleep(300)
+        i = 0
+        for _ in range(50):
+            time.sleep(0.1)
+            i += 1
+            if touch_proc.poll() is not None:
+                raise Exception('poll after {} iterations'.format(i))
+            
 
         out = autoreload_proc.communicate()[0]
         self.assertEqual((str([os.path.join(os.path.dirname(os.path.abspath(tornado.autoreload.__file__)),
