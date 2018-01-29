@@ -108,6 +108,8 @@ for i in range(500):
         autoreload_proc.wait()
         touch_proc.terminate()
         touch_proc.wait()
+        import time
+        time.sleep(10)
 
         out = autoreload_proc.communicate()[0]
         self.assertEqual((str([os.path.join(os.path.dirname(os.path.abspath(tornado.autoreload.__file__)),
