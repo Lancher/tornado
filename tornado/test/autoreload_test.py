@@ -72,7 +72,7 @@ import time
 import sys
 import stat
 
-for i in range(50):
+for i in range(500):
     time.sleep(0.1)
     # Touch the file
     with open(sys.argv[1], 'w') as f:
